@@ -8,9 +8,7 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 topic = input("Enter the topic: ")
 
-response = client.models.generate_content(
-    model="gemini-flash-latest",
-    contents=f"""
+prompt = f"""
 Create beginner-friendly study notes on {topic}.
 
 Include:
@@ -23,7 +21,22 @@ Include:
 
 Use headings and bullet points.
 """
-)
 
-print("\n")
-print(response.text)
+try:
+    response = client.models.generate_content(
+        model="gemini-flash-latest",
+        contents=prompt
+    )
+
+    print("\n")
+    print(response.text)
+
+    # Save notes to a file
+    filename = f"{topic.strip().replace(' ', '_')}_notes.md"
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(response.text)
+
+    print(f"\n✅ Notes saved to {filename}")
+
+except Exception as e:
+    print(f"\n❌ Something went wrong: {e}")
