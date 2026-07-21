@@ -22,31 +22,38 @@ level = st.selectbox(
 )
 generate = st.button("Generate Notes")
 if generate:
-    st.write("Generating notes...")
 
     prompt = create_prompt(topic,level)
-    st.write("Topic:", topic)
-    st.write("Level:", level)
+    with st.spinner("Generating notes..."):
+        st.write("Topic:", topic)
+        st.write("Level:", level)
 
-    try:
-        response = client.models.generate_content(
-           model="gemini-flash-latest",
-           contents=prompt
-    )
+        try:
+            response = client.models.generate_content(
+                model="gemini-flash-latest",
+                contents=prompt
+            )
 
-        st.success("Notes generated successfully!")
-        st.markdown(response.text) 
-        os.makedirs("output", exist_ok=True)
+            st.success("Notes generated successfully!")
+            st.markdown(response.text)
+            st.download_button(
+               label="📥 Download Notes",
+               data=response.text,
+               file_name=f"{topic}_{level}_notes.md",
+               mime="text/markdown"
+         )
+            os.makedirs("output", exist_ok=True)
 
-        filename = os.path.join(
-            "output",
-             f"{topic.strip().replace(' ', '_')}_notes.md"
-           )
+            filename = os.path.join(
+                "output",
+                f"{topic.strip().replace(' ', '_')}_notes.md"
+            )
 
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write(response.text)
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write(response.text)
+            st.info(f"Notes saved to {filename}")
 
-        st.success(f"Notes saved to {filename}")   
-    except Exception as e: 
-      st.error(f"Something went wrong: {e}")
+            st.success(f"Notes saved to {filename}")
+        except Exception as e:
+            st.error(f"Something went wrong: {e}")
     
